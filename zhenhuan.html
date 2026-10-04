@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你在《甄嬛传》能活到第几集</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft YaHei",serif}
+body{background:#f8f3ec;padding:20px}
+.container{max-width:720px;margin:0 auto;background:#fff;border-radius:18px;padding:26px;box-shadow:0 2px 14px rgba(0,0,0,0.14)}
+.page{display:none}
+.page.active{display:block}
+h1{text-align:center;color:#7c4b38;margin-bottom:26px;font-size:24px}
+/*密码页样式*/
+.pwd-input{width:100%;padding:14px;font-size:18px;border:1px solid #d9c9b8;border-radius:8px;margin-bottom:16px;outline:none}
+.pwd-btn{width:100%;padding:14px;background:#9e6b4e;color:#fff;border:none;border-radius:8px;font-size:18px;cursor:pointer}
+/*答题页*/
+.q-title{text-align:center;font-size:20px;color:#663e2d;margin-bottom:18px;font-weight:bold}
+.scene-text{background:#fffaf3;padding:18px;border-radius:10px;margin-bottom:20px;line-height:1.7;font-size:16px;color:#444}
+.opt-btn{width:100%;text-align:left;padding:14px;margin:8px 0;border:1px solid #e3d5c7;background:#fff;border-radius:8px;font-size:16px;cursor:pointer;transition:0.2s}
+.opt-btn:hover{background:#f7efe7}
+/*结果页*/
+.result-box{line-height:1.8;font-size:16px;color:#333}
+.score-line{margin:12px 0;font-size:17px;font-weight:500}
+.result-text{margin:22px 0;line-height:1.85}
+.operate-btn{margin-top:16px;width:100%;padding:14px;background:#9e6b4e;color:#fff;border:none;border-radius:8px;font-size:18px;cursor:pointer;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- 密码解锁页面 -->
+    <div id="page-pwd" class="page active">
+        <h1>你在《甄嬛传》能活到第几集</h1>
+        <p style="text-align:center;margin-bottom:16px;">输入解锁密码进入测试</p>
+        <input class="pwd-input" id="pwd" placeholder="请输入密码">
+        <button class="pwd-btn" onclick="checkPwd()">解锁进入</button>
+    </div>
+
+    <!-- 答题页面 -->
+    <div id="page-question" class="page">
+        <div class="q-title" id="q-title"></div>
+        <div class="scene-text" id="q-content"></div>
+        <div id="option-wrap"></div>
+    </div>
+
+    <!-- 结局结果页面 -->
+    <div id="page-result" class="page">
+        <h1>你的结局</h1>
+        <div class="result-box">
+            <div class="score-line">生存值：<span id="score-life"></span></div>
+            <div class="score-line">恩宠值：<span id="score-favor"></span></div>
+            <div class="score-line">名望值：<span id="score-fame"></span></div>
+            <div class="score-line">谋算值：<span id="score-calc"></span></div>
+            <div class="result-text" id="result-desc"></div>
+        </div>
+        <button class="operate-btn" onclick="resetAll()">重新测试</button>
+    </div>
+</div>
+
+<script>
+//全局变量
+let score = {life:0,favor:0,fame:0,calc:0};
+let currentQIndex = 0;
+
+//页面切换函数
+function switchPage(pageId){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(pageId).classList.add("active");
+}
+
+//密码校验
+function checkPwd(){
+    const inputPwd = document.getElementById("pwd").value.trim();
+    if(inputPwd === "9999"){
+        currentQIndex = 0;
+        score = {life:0,favor:0,fame:0,calc:0};
+        renderQuestion();
+        switchPage("page-question");
+    }else{
+        alert("密码错误，请重新输入");
+    }
+}
+
+//20道深宫博弈深度题目，背景：雍正初年，八位原型人物尚未入宫，你是新晋常在
+const qData = [
+{
+q:"第1题｜你初封常在，入居偏殿。一位位份高于你的嫔派人送来精致赏赐，私下传话说愿意提携你，但要求你日后要站在她这边。你会如何处置？",
+opts:[
+{txt:"礼数周全收下礼物，言语谦卑，不承诺站队，保持不远不近的距离",score:[3,1,2,2]},
+{txt:"大喜过望，竭力奉承，立刻表态愿意追随，盼借她势力获得圣宠",score:[1,3,1,1]},
+{txt:"委婉推回赏赐，表明只想安分度日，不愿卷入任何派系纷争",score:[4,0,2,1]},
+{txt:"收下礼品，假意应承，暗中记下往来细节，伺机将这份关系化为筹码",score:[1,2,1,3]}
+]
+},
+{
+q:"第2题｜御花园偶遇皇上，身边无其他高位妃嫔。这是难得单独面圣的机会，你打算如何应对？",
+opts:[
+{txt:"从容行礼应答，谈吐清雅克制，展露学识但不刻意献媚争宠",score:[2,3,2,1]},
+{txt:"敛目少言，举止怯懦，简单应答便寻借口退开，避免引人注目",score:[3,1,2,0]},
+{txt:"抓住机会主动展露才情，尽力博取皇上青睐，抓住这次得宠契机",score:[1,4,1,2]},
+{txt:"言辞有度，不动声色引路过的其他妃嫔现身，自己不独占圣眷",score:[2,2,2,3]}
+]
+},
+{
+q:"第3题｜同届入宫的小主深夜来你殿中哭诉，控诉高位妃嫔苛待，言辞满是怨怼。你会如何回应？",
+opts:[
+{txt:"安静倾听，不附和指责，温和劝慰，引导她谨言，不参与是非",score:[3,2,2,2]},
+{txt:"共情她的委屈，一同痛斥那位妃嫔，与她结为心腹姐妹",score:[1,2,1,1]},
+{txt:"严肃提醒她隔墙有耳，劝她收敛怨言，莫因口舌招来祸事",score:[2,1,3,2]},
+{txt:"不动声色记下全部话语，留存记录，未来风波之中当作可用把柄",score:[0,1,1,4]}
+]
+},
+{
+q:"第4题｜你的贴身大宫女私下收了外殿宫人好处，虽未出卖你，但已经留下把柄，一旦被揭发会牵连到你。你会？",
+opts:[
+{txt:"私下训诫敲打，警告下不为例，继续留用，恩威并施约束她",score:[3,2,2,2]},
+{txt:"寻个由头将她遣送出宫，斩断隐患，杜绝日后被拖累",score:[2,1,1,3]},
+{txt:"护下宫女，对外隐瞒此事，不予责罚，换取她死心塌地忠心",score:[1,2,2,0]},
+{txt:"当众重罚，杀鸡儆猴，让宫内所有人知晓你管束下人极严",score:[1,0,3,2]}
+]
+},
+{
+q:"第5题｜宫宴之上，有位家世显赫的小主当众出言讥讽，拿你的出身刁难，让你下不来台。你会？",
+opts:[
+{txt:"从容不动怒，缓缓回话，有理有节，不撕破脸面，也不任人折辱",score:[3,2,3,2]},
+{txt:"面露委屈，沉默不语，等待皇上或者高位娘娘出面解围",score:[2,3,2,1]},
+{txt:"当场反唇相讥，据理力争，不愿忍受半分羞辱",score:[1,1,1,3]},
+{txt:"隐忍不发，笑脸应对，默默记下此事，等待合适时机报复",score:[1,2,1,4]}
+]
+},
+{
+q:"第6题｜皇上有意晋你的位份，但需要你去协助探查一桩后宫秘事，这件事一旦败露，你极易成为替罪羔羊。你？",
+opts:[
+{txt:"婉言推辞，以才疏胆小为由拒绝，不愿用性命冒险换晋升",score:[4,1,2,2]},
+{txt:"欣然领命，尽力办好，只求借此机会步步高升，获得恩宠",score:[1,4,1,1]},
+{txt:"表面应下，行事处处留证，规避风险，不把自己置于绝境",score:[2,2,2,4]},
+{txt:"托词体弱多病，回避差事，同时维持在皇上心中温婉形象",score:[3,2,3,1]}
+]
+},
+{
+q:"第7题｜有妃嫔暗中散播流言，说你私藏药材，疑似心怀不轨。此事尚未传到皇上耳中，你会？",
+opts:[
+{txt:"稳住心神，平日言行更加谨慎，等待流言自然消散，不主动辩解",score:[3,1,3,2]},
+{txt:"寻找机会面见皇上，主动自证清白，哭诉委屈博取怜惜",score:[1,3,2,1]},
+{txt:"暗中查证流言源头，抓住对方的破绽，借旁人之手反击",score:[1,2,1,4]},
+{txt:"联系交好的宫人，四处散播对方的丑闻，以流言对抗流言",score:[2,1,1,3]}
+]
+},
+{
+q:"第8题｜你意外得知，某位高位妃嫔暗中使用手段，致使其他小主难以受孕。你掌握了一点线索，你会？",
+opts:[
+{txt:"守口如瓶，装作毫不知情，绝不掺和子嗣相关的滔天风波",score:[4,0,2,2]},
+{txt:"寻时机悄悄禀报皇后，借皇后之手处置，自己置身幕后",score:[1,2,2,4]},
+{txt:"保存证据，等待自己被威胁时，拿出来自保，不主动发难",score:[2,1,2,3]},
+{txt:"直接寻机会告知皇上，揭发恶行，以此博取皇上信任",score:[0,3,1,1]}
+]
+},
+{
+q:"第9题｜你的位份得到晋升，身边不少宫人纷纷前来攀附讨好，甚至主动告密，你会？",
+opts:[
+{txt:"接纳众人，但保持清醒，不轻信告密之言，多方验证信息真假",score:[2,2,2,3]},
+{txt:"来者不拒，多多收集各方情报，利用这些消息巩固自己地位",score:[1,2,1,4]},
+{txt:"保持距离，不轻易接纳攀附者，避免被各方人事裹挟",score:[3,1,3,1]},
+{txt:"厚待这些主动投靠之人，恩赏笼络，打造自己的心腹势力",score:[1,3,2,2]}
+]
+},
+{
+q:"第10题｜你发现你信任的贴身侍女，私下被别的妃嫔收买，偶尔传递你的消息。你？",
+opts:[
+{txt:"不动声色，假意不知，利用她传递假消息，反过来布局对手",score:[1,1,1,4]},
+{txt:"私下敲打警告，留她在身边，观察后续，不再完全信任",score:[3,2,2,2]},
+{txt:"立刻将她处置送走，杜绝后患，不留一丝隐患",score:[2,1,1,3]},
+{txt:"念往日情分，选择原谅，希望她能回心转意继续效忠",score:[1,2,2,0]}
+]
+},
+{
+q:"第11题｜皇上来你宫中，提起别的妃嫔，言语间带着偏爱。你作何反应？",
+opts:[
+{txt:"神色平和，顺势称赞那位小主，气度大方，不流露妒意",score:[2,3,3,2]},
+{txt:"心中酸涩，言语间委婉表露自己的委屈，博取心疼",score:[1,4,1,1]},
+{txt:"安静聆听，不多评价，不动声色转移话题，不谈及他人",score:[3,1,2,2]},
+{txt:"记下此事，寻找机会挑出那位妃嫔的过错，削弱她的宠爱",score:[1,2,1,3]}
+]
+},
+{
+q:"第12题｜皇后召见你，言语看似温和，实则试探你是否有争夺储位之心。你如何应答？",
+opts:[
+{txt:"谦卑表态，一心安分，无半分奢望，恪守本分，绝不展露野心",score:[3,1,3,2]},
+{txt:"言辞谨慎，见机行事，表面顺从，暗中揣摩皇后的底线",score:[2,2,2,3]},
+{txt:"大胆表露自己希望能诞育皇子，为皇家绵延子嗣，博取皇后留意",score:[1,2,1,2]},
+{txt:"一味奉承皇后，表态永远站在皇后一侧，唯皇后马首是瞻",score:[1,3,2,1]}
+]
+},
+{
+q:"第13题｜宫中疫病蔓延，你的殿内人手不足，别的小主提出，与你交换宫人，实则安插眼线。你？",
+opts:[
+{txt:"委婉拒绝，称殿内简陋，不便接待外人，守住自己的空间",score:[3,1,2,2]},
+{txt:"假意应允，做好防备，故意放出无关的假消息迷惑眼线",score:[2,2,1,4]},
+{txt:"欣然同意，借机拉拢新来的宫人，试图收服为己所用",score:[1,2,2,2]},
+{txt:"直接回绝，当众点破对方用意，让对方不敢再算计你",score:[1,0,1,3]}
+]
+},
+{
+q:"第14题｜你有机会得到一味养颜良方，可长久留住容颜，但此药长期服用会悄悄损伤身体根基。你？",
+opts:[
+{txt:"断然拒绝，美貌不能以性命作为代价，保全自身为先",score:[4,1,2,1]},
+{txt:"少量谨慎使用，换取圣宠，同时留心观察身体变化",score:[2,3,1,2]},
+{txt:"坚持使用，只要能留住皇上的宠爱，甘愿承受代价",score:[1,4,1,0]},
+{txt:"拿到方子，不自己用，悄悄送给敌对的妃嫔，借药害人",score:[0,1,1,4]}
+]
+},
+{
+q:"第15题｜昔日与你交好的姐妹卷入一桩祸事，一旦被查，可能牵连到你，你会？",
+opts:[
+{txt:"在力所能及的范围内暗中保全，划清边界，不把自己搭进去",score:[2,2,3,2]},
+{txt:"全力相救，哪怕冒巨大风险，不愿背弃昔日情谊",score:[1,2,3,0]},
+{txt:"主动切割，撇清所有关联，避免被她的祸事拖累",score:[3,1,1,3]},
+{txt:"收集她的证据，抢先上交，证明你与此事毫无瓜葛",score:[0,1,1,4]}
+]
+},
+{
+q:"第16题｜皇上提出，愿意为你破例，提升你的位份，但条件是，要你去打压另外一位并无大错的妃嫔。你？",
+opts:[
+{txt:"婉拒这份恩宠，不愿主动构陷无辜之人，守住底线",score:[3,1,3,1]},
+{txt:"接受条件，抓住机会，顺势打压对手，拿到晋升",score:[1,4,1,2]},
+{txt:"表面应下，下手留余地，不赶尽杀绝，不得罪死敌",score:[2,2,2,3]},
+{txt:"假意领命，暗中通风给对方，两边维持人情",score:[1,2,2,2]}
+]
+},
+{
+q:"第17题｜你偶然发现，你的对手有一个致命的把柄，一旦揭发，足以让她彻底失势。揭发会引来巨大风波，你？",
+opts:[
+{txt:"保存证据，除非对方先加害你，否则绝不主动出手",score:[3,1,2,3]},
+{txt:"寻合适时机，借他人之手揭发，自己隐藏在幕后",score:[1,2,1,4]},
+{txt:"暂时不动，等待她再犯下新错，新旧一并清算",score:[2,2,1,3]},
+{txt:"立刻寻找机会直接揭发，一举除去这个劲敌",score:[0,3,1,1]}
+]
+},
+{
+q:"第18题｜你的身体日渐虚弱，太医劝你静心休养，不可过多争宠劳神。但此时正是博取圣眷的关键阶段，你？",
+opts:[
+{txt:"遵从医嘱，减少侍寝与应酬，以保全性命为第一要务",score:[4,1,2,1]},
+{txt:"权衡取舍，适度承宠，兼顾身体，不拼命透支自己",score:[2,3,2,2]},
+{txt:"不顾病痛，尽力抓住机会，只要能得宠，损耗身体无妨",score:[1,4,1,0]},
+{txt:"借体弱博皇上怜惜，把病弱变成获取恩宠的手段",score:[1,3,1,3]}
+]
+},
+{
+q:"第19题｜新入宫的秀女中有一人，容貌才情远超旁人，皇上已经留意到她，你会？",
+opts:[
+{txt:"保持体面，正常相处，不主动为难，也不刻意亲近",score:[3,1,3,1]},
+{txt:"暗中布局，寻找她的破绽，提前设防，遏制她崛起",score:[1,2,1,4]},
+{txt:"主动示好拉拢，若能收服，便成为自己的助力",score:[2,2,2,2]},
+{txt:"心生妒意，言语刁难，处处打压，不让她得到圣宠",score:[1,3,1,1]}
+]
+},
+{
+q:"第20题｜风波平息，你已经站稳脚跟。此时摆在面前两条路：继续向上争夺更高权位，或是收敛锋芒安稳度日，你选？",
+opts:[
+{txt:"收敛锋芒，减少争斗，守好当下，安稳度日，保全自身",score:[4,1,3,1]},
+{txt:"步步进取，继续谋划，向着更高的位份与权力前行",score:[1,3,1,4]},
+{txt:"稳步前行，不冒进，每一步谋定而后动，徐徐晋升",score:[2,2,2,3]},
+{txt:"全力争夺，不惜代价，一定要走到后宫最高之处",score:[0,4,1,2]}
+]
+}
+];
+
+//渲染题目
+function renderQuestion(){
+    const q = qData[currentQIndex];
+    document.getElementById("q-title").innerText = q.q;
+    const optWrap = document.getElementById("option-wrap");
+    optWrap.innerHTML = "";
+    q.opts.forEach(opt=>{
+        const btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.innerText = opt.txt;
+        btn.onclick = ()=>{
+            score.life += opt.score[0];
+            score.favor += opt.score[1];
+            score.fame += opt.score[2];
+            score.calc += opt.score[3];
+            currentQIndex++;
+            if(currentQIndex >= qData.length){
+                renderResult();
+                switchPage("page-result");
+            }else{
+                renderQuestion();
+            }
+        }
+        optWrap.appendChild(btn);
+    })
+}
+
+//结局判定逻辑
+function renderResult(){
+    document.getElementById("score-life").innerText = score.life;
+    document.getElementById("score-favor").innerText = score.favor;
+    document.getElementById("score-fame").innerText = score.fame;
+    document.getElementById("score-calc").innerText = score.calc;
+    const descBox = document.getElementById("result-desc");
+    let resultText = getResultText(score);
+    descBox.innerHTML = resultText;
+}
+
+function getResultText(s){
+    const life = s.life;
+    const favor = s.favor;
+    const fame = s.fame;
+    const calc = s.calc;
+    let type,episode,rank,character,innerMind;
+
+    //8角色判定
+    if(life >=45 && calc >=35 && favor>=25){
+        //甄嬛向
+        type = "【甄嬛向】";
+        episode = "大结局";
+        rank = "皇贵妃";
+        character = `<strong>个人特征：</strong>初见温婉清雅，自带诗书底蕴，性情柔韧内敛。平日待人宽厚有度，却深谙人心利弊，懂得审时藏锋，不主动挑起纷争。一旦遭遇构陷迫害，可步步为营从容反击，行事留有底线，不滥杀无辜。既能在盛宠之时自持清醒，也能在绝境之中蜕变重生，是红墙之内难得进退自如之人。`;
+        innerMind = `<strong>内心心迹：</strong>初入宫时，心中怀揣期许，愿寻得一份真心，相信帝王尚有温情。深宫起落，亲眼见证背叛、牺牲与生死别离，终看透皇权之下情爱虚妄。她不再执着于儿女情长，心底却依旧留存一丝良善。为守护自己在意之人，她愿意披上算计的铠甲，于无尽红墙博弈之中，守住本心，守住一方安身之地。`;
+    }else if(favor >=42 && calc >=30 && life <=35){
+        //华妃向
+        type = "【华妃向】";
+        episode = "42集";
+        rank = "贵妃";
+        character = `<strong>个人特征：</strong>容貌明艳灼人，性情张扬热烈，自带夺目光芒。敢爱敢恨，得宠之时风光冠绝六宫，行事干脆果决，拥有统领一方的魄力。可情感极易牵动判断，浓烈的爱意之中裹挟深重妒意，容易被情爱蒙蔽双眼，冲动之下做出不计后果之举，强悍之下藏着致命软肋。`;
+        innerMind = `<strong>内心心迹：</strong>她入宫所求从不是冰冷权位，而是帝王独一无二的偏爱。她倾尽全部真心去爱，把皇上当作此生归宿，愿意为这份情意倾尽所有。可深宫之中，恩宠是蜜糖亦是毒药。她一生困在情爱执念里，赢尽眼前风光，却始终看不穿帝王权衡，到最后才明白所有宠爱，皆是算计。`;
+    }else if(life >=48 && calc >=38 && favor <=25){
+        //端妃向
+        type = "【端妃向】";
+        episode = "大结局";
+        rank = "皇贵妃";
+        character = `<strong>个人特征：</strong>气质沉静淡然，常年蛰伏，不争一时恩宠。看透后宫所有阴谋与凉薄，不轻易站队，不卷入喧嚣纷争。善于隐忍等待，懂得藏起锋芒，保全自身是第一要义。看似与世无争，心中洞察全局，谋算内敛深沉，不出手则已，出手便直击要害。`;
+        innerMind = `<strong>内心心迹：</strong>早年受过重创，早已看透帝王恩宠转瞬成空。她放下对情爱所有期待，只求安稳活下去。她冷眼旁观后宫风起云涌，不贪恋荣华，不执着爱恨。她耐心等待时机，只在关键节点出手，一生所求，不过是远离风波，在红墙之中静静安度余生。`;
+    }else if(calc >=40 && life >=30 && fame <=28){
+        //安陵容向
+        type = "【安陵容向】";
+        episode = "34集";
+        rank = "嫔";
+        character = `<strong>个人特征：</strong>心思细密敏感，骨子里藏着深深自卑。容貌才情不算顶尖，却擅长苦练技艺博取关注。善于揣摩人心，手段阴柔隐秘，表面温顺谦卑，内里翻涌不甘。极度渴望旁人认可，为向上攀爬，愿意不断牺牲，一步步被深宫吞噬本心。`;
+        innerMind = `<strong>内心心迹：</strong>入宫之初，她自卑怯懦，渴望被接纳，盼望挣脱出身带来的卑微。她羡慕旁人与生俱来的底气，拼命想要证明自己。可深宫之中，讨好换不来尊重，她慢慢明白唯有手握手段，才能不再任人践踏。一路挣扎向上，不断舍弃底线，到最后，满心皆是无尽孤独与悔恨。`;
+    }else if(calc >=42 && fame >=35 && life <=32){
+        //皇后向
+        type = "【皇后向】";
+        episode = "大结局（囚禁）";
+        rank = "皇后";
+        character = `<strong>个人特征：</strong>外表温和端庄，待人宽厚和善，是人人眼中贤良之人。城府极深，擅长不动声色布局，精通借刀杀人，从不会亲手沾染血污。心中执念深重，对于子嗣与后位有着近乎偏执的坚守，为守住自己的位置，可以隐忍数十年，步步剪除所有威胁。`;
+        innerMind = `<strong>内心心迹：</strong>曾经她也拥有温情，痛失亲子之后，心中只剩下无尽执念。她明白后位是她唯一的依仗，绝不允许任何人夺走属于她的一切。她一辈子困在嫉妒与伤痛之中，表面母仪天下，内里满目荒芜。赢了权斗，守着后位，却永远得不到帝王真心，一生都活在旧日伤痛之中。`;
+    }else if(fame >=40 && life >=40 && favor <=30 && calc <=30){
+        //沈眉庄向
+        type = "【沈眉庄向】";
+        episode = "58集";
+        rank = "惠嫔";
+        character = `<strong>个人特征：</strong>端庄自持，饱读诗书，风骨凛然，极其看重名节与体面。行事恪守礼法，品性端正，在宫中拥有极好名望。她聪慧通透，可骨子里骄傲，一旦看清帝王凉薄，便再也不愿曲意逢迎换取恩宠。不争不抢，有自己的原则，绝不随波逐流。`;
+        innerMind = `<strong>内心心迹：</strong>初入宫满怀期待，恪守礼教，一心做好皇家妃嫔。经历构陷之后，彻底看透帝王的薄情，从此不再追逐皇上的宠爱。她守住自己的尊严，不愿为恩宠折腰。她所求从不是无尽权位，只求一份真诚暖意。她清醒自持，一生坚守本心，宁舍荣华，不丢风骨。`;
+    }else if(favor>=40 && life<=28 && calc<=28){
+        //祺贵人向
+        type = "【祺贵人向】";
+        episode = "27集";
+        rank = "贵人";
+        character = `<strong>个人特征：</strong>家世显赫，容貌明艳，一朝得宠便春风得意。心性单纯浅薄，恃宠而骄，喜怒全都写在脸上。依仗家族与圣眷，行事张扬，缺少城府，极易被人挑唆利用。有一腔锐气，却看不懂后宫层层陷阱，容易成为他人手中的刀。`;
+        innerMind = `<strong>内心心迹：</strong>出身名门，自幼被呵护，入宫以为凭着家世与容貌，便可安稳荣宠一生。她看不惯深宫的阴私算计，也不懂人心险恶，以为只要有皇上偏爱，便可以肆意行事。她的爱恨直白热烈，却不知恩宠无根，家族庇护亦有尽头，直至大祸临头，方才知晓红墙无情。`;
+    }else{
+        //余莺儿向
+        type = "【余莺儿向】";
+        episode = "8集";
+        rank = "答应";
+        character = `<strong>个人特征：</strong>骤然得宠，便忘乎所以。眼界浅薄，骤然拥有圣眷之后骄纵跋扈，不懂收敛。稍有恩宠便肆意折辱他人，没有长远谋划，缺乏自保的智慧。凭借一时机遇上位，根基虚空，稍有风波便不堪一击。`;
+        innerMind = `<strong>内心心迹：</strong>意外得到帝王青睐，这份突如其来的荣宠，让她迷失自我。她把短暂的恩宠当成永久依仗，肆意张扬，轻视宫中规矩与人心。她不懂盛宠易碎，红墙之中没有永久偏爱。她沉溺眼前风光，看不到潜藏危机，一点点透支自己的好运，最终早早走向覆灭。`;
+    }
+    return `<p>${type}</p>
+<p><strong>存活集数：</strong>${episode}</p>
+<p><strong>最终位份：</strong>${rank}</p>
+<p>${character}</p>
+<p>${innerMind}</p>`;
+}
+
+//重置全部，回到密码首页
+function resetAll(){
+    score = {life:0,favor:0,fame:0,calc:0};
+    currentQIndex = 0;
+    document.getElementById("pwd").value = "";
+    switchPage("page-pwd");
+}
+</script>
+</body>
+</html>
